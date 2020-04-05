@@ -46,24 +46,28 @@ public class CrawlerServiceImpl  implements CrawlerService {
         boolean isValid = urlValidator.isValid(url);
 
         if(isValid) {
+            CrawlUrlInfo crawlUrlInfo = crawlUrlInfoRepository.findByUrl(url);
+            if(Objects.isNull(crawlUrlInfo)) {
+                String token = UUID.randomUUID().toString();
+                crawlUrlInfo = getEntity(url, token);
+                crawlUrlInfo = crawlUrlInfoRepository.save(crawlUrlInfo);
+                log.info("Saved the request " + crawlUrlInfo);
 
-            String token = UUID.randomUUID().toString();
-            CrawlUrlInfo crawlUrlInfo = getEntity(url, token);
-            crawlUrlInfo = crawlUrlInfoRepository.save(crawlUrlInfo);
-            log.info("Saved the request " + crawlUrlInfo);
-
-            try {
-                executor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        startProcessing(url , depth);
-                    }
-                });
-            } catch (Exception ex) {
-                crawlUrlInfo.setStatus(Status.FAILED);
-                log.error(ex);
+                try {
+                    executor.submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            startProcessing(url, depth);
+                        }
+                    });
+                } catch (Exception ex) {
+                    crawlUrlInfo.setStatus(Status.FAILED);
+                    log.error(ex);
+                }
+                return ResponseDto.builder().token(token).message("Request Submitted Successfully").build();
+            }else{
+                return ResponseDto.builder().message("Crawling Request for same url already exists ").build();
             }
-            return ResponseDto.builder().token(token).message("Request Submitted Successfully").build();
         }else{
             return ResponseDto.builder().token(null).message("Request could not be submitted, url is invalid ").build();
         }
