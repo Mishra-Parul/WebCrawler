@@ -1,7 +1,6 @@
 package com.project.webCrawler.repository;
 
 import com.project.webCrawler.model.CrawlUrlInfo;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
 
 /**

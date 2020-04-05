@@ -5,8 +5,6 @@ import com.project.webCrawler.dto.PageTreeInfo;
 import com.project.webCrawler.dto.ResponseDto;
 import com.project.webCrawler.dto.UrlDetailsResponse;
 
-import java.util.List;
-
 /**
  * @author parul.mishra
  * @created 04 / 04 /2020
