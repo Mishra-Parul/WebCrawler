@@ -54,11 +54,8 @@ public class CrawlerServiceImpl  implements CrawlerService {
                 log.info("Saved the request " + crawlUrlInfo);
 
                 try {
-                    executor.submit(new Runnable() {
-                        @Override
-                        public void run() {
+                    executor.submit(() -> {
                             startProcessing(url, depth);
-                        }
                     });
                 } catch (Exception ex) {
                     crawlUrlInfo.setStatus(Status.FAILED);
@@ -78,10 +75,18 @@ public class CrawlerServiceImpl  implements CrawlerService {
         CrawlUrlInfo crawlUrlInfo = crawlUrlInfoRepository.findByUrl(url);
         crawlUrlInfo.setStatus(Status.INPROCESS);
         crawlUrlInfoRepository.save(crawlUrlInfo);
+
         PageTreeInfo pageTreeInfo = deepCrawl(url, depth);
-        crawlUrlInfo.setStatus(Status.PROCESSED);
-        crawlUrlInfo.setTitle(pageTreeInfo.getTitle());
-        crawlUrlInfo.setDetails(converttoJSON(pageTreeInfo.getNodes()));
+
+        if(Objects.isNull(pageTreeInfo)){
+            crawlUrlInfo.setStatus(Status.FAILED);
+        }else{
+            crawlUrlInfo.setStatus(Status.PROCESSED);
+            crawlUrlInfo.setTitle(pageTreeInfo.getTitle());
+            crawlUrlInfo.setDetails(converttoJSON(pageTreeInfo.getNodes()));
+        }
+        log.info("Processing completed for url " + url);
+
         crawlUrlInfoRepository.save(crawlUrlInfo);
     }
 
@@ -99,12 +104,13 @@ public class CrawlerServiceImpl  implements CrawlerService {
 
     @Async
     public PageTreeInfo deepCrawl(final String url, final int depth) {
-        log.debug("Starting crawler for url {} for depth {}", url, depth);
-        if (depth > 0) {
-            final List<String> updatedProcessedUrls = Optional.ofNullable(processedUrls).orElse(new ArrayList<>());
-            if (!updatedProcessedUrls.contains(url)) {
-                updatedProcessedUrls.add(url);
-                final PageTreeInfo pageTreeInfo = PageTreeInfo.builder().url(url).build();
+        try {
+            log.debug("Starting crawler for url {} for depth {}", url, depth);
+            if (depth > 0) {
+                final List<String> updatedProcessedUrls = Optional.ofNullable(processedUrls).orElse(new ArrayList<>());
+                if (!updatedProcessedUrls.contains(url)) {
+                    updatedProcessedUrls.add(url);
+                    final PageTreeInfo pageTreeInfo = PageTreeInfo.builder().url(url).build();
                     crawl(url).ifPresent(pageInfo -> {
                         pageTreeInfo.setTitle(pageInfo.getTitle());
                         pageTreeInfo.setTotal_images(pageInfo.getImageCount());
@@ -114,8 +120,12 @@ public class CrawlerServiceImpl  implements CrawlerService {
                             pageTreeInfo.addNodesItem(deepCrawl(link.attr("abs:href"), depth - 1));
                         });
                     });
-                return pageTreeInfo;
+                    return pageTreeInfo;
+                }
             }
+        }catch(Exception ex){
+            log.error(ex);
+            return null;
         }
         return null;
     }
