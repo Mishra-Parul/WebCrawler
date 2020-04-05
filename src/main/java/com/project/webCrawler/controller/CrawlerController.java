@@ -37,7 +37,7 @@ public class CrawlerController {
     }
 
     @GetMapping(value = "/getStatus", produces = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<UrlDetailsResponse> getstatusforUrl(
+    public ResponseEntity<UrlDetailsResponse> getStatusforUrl(
             @NotNull @RequestParam(value = "url") final String url) {
 
         log.info("Request for getting status for crawling request for url:", url);
