@@ -3,6 +3,12 @@
  */
 package com.project.webCrawler.exception;
 
+
+/**
+ * @author parul.mishra
+ * @created 05 / 04 /2020
+ */
+
 public class CrawlerException extends RuntimeException {
 
 	private static final long serialVersionUID = -3368655266237942363L;

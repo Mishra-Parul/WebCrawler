@@ -1,5 +1,9 @@
 package com.project.webCrawler.enums;
 
+/**
+ * @author parul.mishra
+ * @created 05 / 04 /2020
+ */
 public enum Status {
 
     SUBMITTED("Submitted"),

@@ -10,8 +10,8 @@ import org.jsoup.select.Elements;
 import java.io.Serializable;
 
 /**
- * @author buddy
- *
+ * @author parul.mishra
+ * @created 05 / 04 /2020
  */
 
 @Getter

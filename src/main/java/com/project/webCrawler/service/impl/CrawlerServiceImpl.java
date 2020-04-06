@@ -25,6 +25,7 @@ import java.util.*;
  * @author parul.mishra
  * @created 04 / 04 /2020
  */
+
 @Service("crawlerServiceImpl")
 @Log4j2
 public class CrawlerServiceImpl  implements CrawlerService {
